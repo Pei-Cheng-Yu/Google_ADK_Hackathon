@@ -5,7 +5,8 @@ from typing import List, Literal, Optional
 from google.adk.tools.tool_context import ToolContext
 from .resource_agent.agent import resource_agent
 from google.adk.tools.agent_tool import AgentTool
-
+from db.crud.skillpath_crud import save_skillpath
+from db.database import SessionLocal
 def get_structured_goal(goal_id: str, tool_context: ToolContext) -> dict:
     """_summary_
 
@@ -46,6 +47,7 @@ def store_skillpath(goal_id: str, skillpath: dict, tool_context: ToolContext) ->
             {
             "title": "string",
             "description": "string",
+            "milestone": "int",
             "estimated_hours": float,
             "tags": ["string", ...],
             "resource": ["youtube_video_title", "example_platform", "example_app", "python_docs",...]
@@ -64,6 +66,7 @@ def store_skillpath(goal_id: str, skillpath: dict, tool_context: ToolContext) ->
             {
             "title": "string",
             "description": "string",
+            "milestone": "int",
             "estimated_hours": float,
             "tags": ["string", ...],
             "resource": ["youtube_video_title", "example_platform", "example_app", "python_docs",...]
@@ -80,6 +83,12 @@ def store_skillpath(goal_id: str, skillpath: dict, tool_context: ToolContext) ->
         goals[goal_id] = {}
     goals[goal_id]["skillpath"] = skillpath
     tool_context.state["goals"] = goals
+    user_id = tool_context.state.get("user_id", "test")
+    db = SessionLocal()
+    try:
+        save_skillpath(db=db, user_id=user_id, goal_id=goal_id, skillpath_data=skillpath)
+    finally:
+        db.close()
     return {"message": f"Skillpath stored for goal '{goal_id}'."}
     
 
@@ -109,6 +118,7 @@ skillpath_agent = LlmAgent(
     - Create a corresponding **learning unit** with:
         - `title`: a short name for the skill
         - `description`: a 1–2 sentence summary explaining the learning objective
+        - `milestone`: current milestone index from the roadmap
         - `estimated_hours`: an estimated duration (typically 0.5 to 2 hours)
         - `tags`: e.g., "video", "reading", "flashcards", "app", "speaking", "role-play"
 
@@ -127,6 +137,7 @@ skillpath_agent = LlmAgent(
         {
         "title": "string",
         "description": "string",
+        "milestone": "int",
         "estimated_hours": float,
         "tags": ["string", ...],
         "resource": ["youtube_video_title", "example_platform", "example_app", "python_docs",...]
@@ -144,7 +155,7 @@ skillpath_agent = LlmAgent(
     - Resources may include tutorials, videos, apps, guides, or exercises.
     - Prefer beginner-friendly and free content when possible.
 
-    If no appropriate URL is found, return an empty list: `"resource": []`
+    If no appropriate resource is found, return an empty list: `"resource": []`
    
     
     ### IMPORTANT

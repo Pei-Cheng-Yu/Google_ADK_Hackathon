@@ -3,7 +3,10 @@ from pydantic import BaseModel, Field
 from typing import Annotated
 from typing import List, Literal, Optional
 from google.adk.tools.tool_context import ToolContext
-
+from datetime import datetime
+from db.crud.plan_crud import store_plan
+from db.database import SessionLocal
+import json
 def get_all_structured_goals(tool_context: ToolContext) -> dict:
     """_summary_
 
@@ -78,30 +81,39 @@ def store_daily_plan(daily_plan: dict, tool_context: ToolContext) -> dict:
     """_summary_
 
     Args:
-        "daily_plan": [
+        ```json
+    {
+  "daily_plan": [
+    {
+      "date": "2025-06-02",
+      "items": [
         {
-        "date": "2025-06-02",
-        "items": [
-            {
-            "type": "task",
-            "title": "Set up project repo",
-            "Day_of_the_week": "Tuesday",
-            "start_time": "13:00",
-            "end_time": "14:00",
-            "duration_min": 60,
-            "milestone": "Setup",
-            "goal_id": "abc123"
-            },
-            ...
-        ]
+          "type": "task",
+          "title": "Set up project repo",
+          "Day_of_the_week": "Tuesday",
+          "start_time": "13:00",
+          "end_time": "14:00",
+          "duration_min": 60,
+          "milestone": "Setup",
+          "goal_id": "abc123"
         }
-        ]
+      ]
+    }
+  ]
+}
         tool_context (ToolContext): Context for accessing and updating session state
 
     Returns:
         dict: the available_slots
     """
     tool_context.state["daily_plan"] = daily_plan
+    user_id = tool_context.state.get("user_id", "test")
+    db = SessionLocal()
+    
+    try:
+        store_plan(db=db, user_id=user_id, daily_plan=daily_plan["daily_plan"])
+    finally:
+        db.close()
     return {"message": f"daily_plan '{daily_plan}' stored."}
 
 def store_per_goal_plan(per_goal_plan: dict, tool_context: ToolContext) -> dict:
@@ -133,30 +145,25 @@ def store_per_goal_plan(per_goal_plan: dict, tool_context: ToolContext) -> dict:
     """
     tool_context.state["per_goal_plan"] = per_goal_plan
     return {"message": f"per_goal_plan '{per_goal_plan}' stored."}
-
-def store_unsigned_plan(unsigned_plan: dict , tool_context: ToolContext) -> dict:
-    """_summary_
-
-    Args:
-          
-        "unassigned": [
-        {
-        "type": "task",
-        "title": "Write unit tests",
-        "duration_min": 90,
-        "milestone": "Testing",
-        "goal_id": "abc123",
-        "reason": "Not enough available time"
-        }
-        ]
-        
-        tool_context (ToolContext): Context for accessing and updating session state
-
-    Returns:
-        dict: the unsigned_plan
+def get_date_weekday(date: str) -> dict:
     """
-    tool_context.state["unsigned_plan"] = unsigned_plan
-    return {"message": f"unsigned_plan '{unsigned_plan}' stored."}
+    Get the weekday name of a date string in YYYY-MM-DD format.
+    
+    Args:
+        date (str): A date string like "2025-06-01"
+        
+    Returns:
+        dict: {"weekday": "Sunday"} (or other day name)
+    """
+    date_obj = datetime.strptime(date, "%Y-%m-%d").date()
+
+    # Correct way to get weekday name
+    day_of_week = date_obj.strftime("%A")
+
+    return {
+        "weekday": day_of_week
+    }
+
 
 def store_remain_slots(remain_slots: dict , tool_context: ToolContext) -> dict:
     """_summary_
@@ -197,8 +204,26 @@ planner_agent = LlmAgent(
     - Call `get_all_roadmaps` to get tasks and milestones for each goal.
     - Call `get_all_skillpaths` to get learning steps for each goal.
     - Call `get_available_slots` to get time blocks with:
-    - `date`, `Day_of_the_week`, `start`, `end`, and `duration_minutes`.
-
+    ```json
+    {
+    "available": 
+     {
+        "available": {
+            "Monday": ["morning", "13:00–15:00", "night"],
+            "Tuesday": ["afternoon"],
+            "Wednesday": [],
+            "Thursday": ["09:00–12:00"],
+            "Friday": ["night"],
+            "Saturday": [],
+            "Sunday": []
+        },
+        "exceptions": {
+            "2025-06-10": [],  
+            "2025-06-15": ["18:00–20:00"]  
+        }
+        }
+    Morning = 08:00–12:00, Afternoon = 13:00–18:00, Night = 19:00–22:00
+    - Call `get_date_weekday` to get the day of the week of a specific date
     Store:
     - Call `store_daily_plan` to store the `daily_plan` (grouped by date).
 
@@ -207,52 +232,47 @@ planner_agent = LlmAgent(
     🧠 YOUR TASK
 
     Step 1: Collect all goals, roadmaps, skillpaths, and time slots.  
-    Step 2: Assign tasks and learning items from `learning_path` of the skillpaths into the available slots. Follow these rules:
-    - Respect the `duration_min` of each item.
-    - Assign a precise `start_time` and `end_time` based on the slot.
-    - Avoid overlapping items.
-    - Prioritize filling earlier dates first.
-    - Balance work between multiple goals and types.
-    - Don't exceed the `daily_time_budget` for each goal
-    - Generate a version fit in `daily_plan` format
+    Step 2. Schedule tasks and learning items using a weekly availability template:
 
+    - Begin planning from the `start_date` found in each goal's `structured_goal`.
+    - For each day starting from that date:
+    - Use the `available` weekly pattern to determine available blocks (e.g., "Monday": ["morning", "13:00–15:00"]).
+    - Skip any date listed in `exceptions` (if fully unavailable) or apply override blocks if specified.
+    - Compute the actual available date blocks by combining the weekly template with the calendar.
+    - For each available time block:
+    - Assign a task or learning item that fits the time block (`estimated_hours` to `duration_min`).
+    - Continue this daily scheduling process **week by week**, until all items are scheduled or no valid time remains.
+    - Do not exceed `daily_time_budget` per goal.
+    - Avoid overlapping assignments and balance task/learning types.
+
+    Once all items are assigned or no more time is available, store the result in `daily_plan`.
     📦 OUTPUT FORMAT
 
     1. `daily_plan` (grouped by date):
 
     ```json
     {
-    "daily_plan": [
+  "daily_plan": [
+    {
+      "date": "2025-06-02",
+      "items": [
         {
-        "date": "2025-06-02",
-        "items": [
-            {
-            "type": "task",
-            "title": "Set up project repo",
-            "Day_of_the_week": "Tuesday",
-            "start_time": "13:00",
-            "end_time": "14:00",
-            "duration_min": 60,
-            "milestone": "Setup",
-            "goal_id": "abc123"
-            },
-            ...
-        ]
-        "unassigned": [
-        {
-        "type": "task",
-        "title": "Write unit tests",
-        "duration_min": 90,
-        "milestone": "Testing",
-        "goal_id": "abc123",
-        "reason": "Not enough available time"
+          "type": "task",
+          "title": "Set up project repo",
+          "Day_of_the_week": "Tuesday",
+          "start_time": "13:00",
+          "end_time": "14:00",
+          "duration_min": 60,
+          "milestone": "Setup",
+          "goal_id": "abc123"
         }
-        }
-    
-    ]
+      ]
     }
+  ]
+}
+
     
-    
+
     
     - You should make sure you call the storing tool after generate an plan
     - Always make the plan is stored by calling storing tools after generate an plan
@@ -269,6 +289,6 @@ planner_agent = LlmAgent(
     get_all_structured_goals,
     get_available_slots,
     store_daily_plan,
-
+    get_date_weekday
     ]
 )
