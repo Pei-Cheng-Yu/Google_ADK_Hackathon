@@ -9,6 +9,8 @@ from .sub_agents.skillpath_agent.agent import skillpath_agent
 from .sub_agents.timeslot_agent.agent import timeslot_agent
 from datetime import datetime
 from .sub_agents.planner_agent.agent import planner_agent
+from db.crud.goal_crud import save_goal
+from db.database import SessionLocal
 
 class GoalAgentOutput(BaseModel):
     goal: str = Field(description="Natural language goal provided by the user")
@@ -63,6 +65,12 @@ def store_structured_goal(goal_id: str, goal: dict, tool_context: ToolContext) -
         goals[goal_id] = {}
     goals[goal_id]["structured_goal"] = goal
     tool_context.state["goals"] = goals
+    user_id = tool_context.state.get("user_id", "test")
+    db = SessionLocal()
+    try:
+        save_goal(db, user_id=user_id, goal_id=goal_id, goal_data=goals)
+    finally:
+        db.close()
     return {"message": f"Structured goal '{goal_id}' stored."}
 
 def get_current_date() -> dict:

@@ -4,7 +4,8 @@ from typing import Annotated
 from typing import List, Literal, Optional
 from google.adk.tools.tool_context import ToolContext
 from datetime import datetime
-def get_structured_goal(goal_id: str, tool_context: ToolContext) -> dict:
+
+def get_available_slots(tool_context: ToolContext) -> dict:
     """_summary_
 
     Args:
@@ -12,50 +13,40 @@ def get_structured_goal(goal_id: str, tool_context: ToolContext) -> dict:
         tool_context (ToolContext): Context for accessing and updating session state
 
     Returns:
-        dict: the structured goal
+        dict: the available_slots
     """
-    goals = tool_context.state.get("goals", {})
-    structured_goal = goals.get(goal_id, {}).get("structured_goal", {})
-    return {"goal_id": goal_id, "structured_goal": structured_goal}
+    available_slots = tool_context.state.get("available_slots",{})
+    return {
+        "available_slots": available_slots
+    }
 def store_available_slot(available_slots: dict, tool_context: ToolContext) -> dict:
     """store_available_slots
 
     Args:
-        available_slots : [
         {
-        "Day_of_the_week": "Tuesday",
-        "date": "2025-06-03",
-        "start": "09:00",
-        "end": "12:00",
-        "duration_minutes": 180
+        "available": {
+            "Monday": ["morning", "13:00–15:00", "night"],
+            "Tuesday": ["afternoon"],
+            "Wednesday": [],
+            "Thursday": ["09:00–12:00"],
+            "Friday": ["night"],
+            "Saturday": [],
+            "Sunday": []
         },
-        ...
-    ]
+        "exceptions": {
+            "2025-06-10": [],  
+            "2025-06-15": ["18:00–20:00"]  
+        }
+        }
+    
         tool_context (ToolContext): Context for accessing and updating session state
-
+   
     Returns:
         dict: the available_slots
     """
     tool_context.state["available_slots"] = available_slots
     return {"message": f"available_slots '{available_slots}' stored."}
-def get_date_weekday(date: str) -> dict:
-    """
-    Get the weekday name of a date string in YYYY-MM-DD format.
-    
-    Args:
-        date (str): A date string like "2025-06-01"
-        
-    Returns:
-        dict: {"weekday": "Sunday"} (or other day name)
-    """
-    date_obj = datetime.strptime(date, "%Y-%m-%d").date()
 
-    # Correct way to get weekday name
-    day_of_week = date_obj.strftime("%A")
-
-    return {
-        "weekday": day_of_week
-    }
     
 timeslot_agent = LlmAgent(
     name = "timeslot_agent",
@@ -64,8 +55,8 @@ timeslot_agent = LlmAgent(
     You are the TimeSlotAgent.
 
     Your role is to ask the user for their general weekly availability and any known exceptions (like days they’re busy), and generate a list of open time slots that fit their availability and their structured goals.
-    Start by calling  `get_structured_goal()` to retrieve the user’s timeframe and start_date in goals. 
-    Then: Ask
+    
+    Ask
     > "For each Day of the week, what times are you available? We'll assume you're available Monday–Sunday from 6pm–9pm. You can use morning, afternoon, night, or type exact hours like 13:00–16:00."
 
     Also ask:
@@ -82,37 +73,37 @@ timeslot_agent = LlmAgent(
     - The daily time commitment specified in the goal (`daily_time_budget`)
     - The overall goal timeframe (`timeframe`, such as "one month")
     Tool:
-    - `get_sturcture_goal`(goal_id):use this to retrieve the user's structured learning goal.
     - `store_available_slots`: use this to store user's available time.
-    - `get_date_weekday` : use this to make sure the weekday of date.
     ### Your Steps:
 
-    1. Use `get_structured_goal()` to retrieve the user’s timeframe and start_date in goals. 
 
-    2. Ask the user for general **weekly availability**. Start with a default (Monday to Sunday, 6pm–9pm), and offer to customize by asking for each Day_of_the_week preferred blocks:
+    1. Ask the user for general **weekly availability**. Start with a default (Monday to Sunday, 6pm–9pm), and offer to customize by asking for each Day_of_the_week preferred blocks:
     - Morning (09:00–12:00)
     - Afternoon (13:00–17:00)
     - Night (18:00–21:00)
     - Or exact time ranges like “10:30–13:00”
 
-    3. Ask if the user has any **exceptions** with in the timeframe from the start_date (e.g., “Not available on June 10”).
+    2. Ask if the user has any **exceptions** with in the timeframe from the start_date (e.g., “Not available on June 10”).
 
-    4. Based on this info, generate a list of **available_slots** over the goal's timeframe. 
+    3. Based on this info, generate a list of **available_slots** over the goal's timeframe, u should only store specific time slot. 
 
-    5. Return these slots in the format below:
-
+    4. Return these slots in the format below:
+     Morning = 08:00–12:00, Afternoon = 13:00–18:00, Night = 19:00–22:00
     ```json
     {
-    "available_slots": [
-        {
-        "Day_of_the_week": "Tuesday",
-        "date": "2025-06-03",
-        "start": "09:00",
-        "end": "12:00",
-        "duration_minutes": 180
-        },
-        ...
-    ]
+  "available": {
+    "Monday": ["08:00–12:00", "13:00–15:00"], // store specific time 
+    "Tuesday": ["13:00–15:00"],
+    "Wednesday": [],
+    "Thursday": ["09:00–12:00"],
+    "Friday": [" 19:00–22:00"],
+    "Saturday": [],
+    "Sunday": []
+  },
+    "exceptions": {
+        "2025-06-10": [],  // unavailable all day
+        "2025-06-15": ["18:00–20:00"]  // custom override
+    }
     }
     
     ❗ You MUST NOT show the final JSON to the user in the conversation.
@@ -121,5 +112,5 @@ timeslot_agent = LlmAgent(
     ❗ DO NOT "double confirm" the JSON with the user.
     ✅ Simply call the tool silently and end your turn.
     """,
-    tools=[get_structured_goal, store_available_slot]
+    tools=[ store_available_slot]
 )

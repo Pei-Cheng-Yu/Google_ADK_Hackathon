@@ -1,5 +1,10 @@
-import asyncio 
-
-from .agents.goal_agent import root_agent
+from fastapi import FastAPI
+from api.routes import router as api_router
 from dotenv import load_dotenv
-from google.adk.runners import Runner
+import os
+from db.database import init_db
+load_dotenv()
+os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
+app = FastAPI()
+app.include_router(api_router)
+init_db()

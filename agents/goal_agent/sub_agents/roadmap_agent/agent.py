@@ -3,6 +3,8 @@ from pydantic import BaseModel, Field
 from typing import Annotated
 from typing import List, Literal, Optional
 from google.adk.tools.tool_context import ToolContext
+from db.crud.roadmap_crud import save_roadmap
+from db.database import SessionLocal
 
 def get_structured_goal(goal_id: str, tool_context: ToolContext) -> dict:
     """_summary_
@@ -42,6 +44,12 @@ def store_roadmap(goal_id: str, roadmap: dict, tool_context: ToolContext) -> dic
         goals[goal_id] = {}
     goals[goal_id]["roadmap"] = roadmap
     tool_context.state["goals"] = goals
+    user_id = tool_context.state.get("user_id", "test")
+    db = SessionLocal()
+    try:
+        save_roadmap(db, user_id=user_id, goal_id=goal_id, roadmap_data=roadmap)
+    finally:
+        db.close()
     return {"message": f"Roadmap stored for goal '{goal_id}'."}
     
     
