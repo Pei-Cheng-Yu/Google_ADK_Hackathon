@@ -65,10 +65,10 @@ def store_structured_goal(goal_id: str, goal: dict, tool_context: ToolContext) -
         goals[goal_id] = {}
     goals[goal_id]["structured_goal"] = goal
     tool_context.state["goals"] = goals
-    user_id = tool_context.state.get("user_id", "test")
+    user_id = tool_context._invocation_context.user_id
     db = SessionLocal()
     try:
-        save_goal(db, user_id=user_id, goal_id=goal_id, goal_data=goals)
+        save_goal(db, user_id=user_id, goal_id=goal_id, goal_data=goal)
     finally:
         db.close()
     return {"message": f"Structured goal '{goal_id}' stored."}

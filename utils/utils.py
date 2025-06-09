@@ -4,6 +4,7 @@ import json
 async def call_agent_async(runner, user_id, session_id, user_input):
     content = types.Content(role="user", parts=[types.Part(text=user_input)])
     final_response_text = None
+    
     try:
         async for event in runner.run_async(
             user_id=user_id, session_id=session_id, new_message=content

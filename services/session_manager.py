@@ -1,7 +1,7 @@
 from google.adk.sessions import DatabaseSessionService
 from typing import Optional
 
-db_url = "sqlite:///./my_agent_data.db"
+db_url = "sqlite:///./my_agent_data2.db"
 session_service = DatabaseSessionService(db_url=db_url)
 
 def get_or_create_session(app_name: str, user_id: str, initial_state: dict) -> str:

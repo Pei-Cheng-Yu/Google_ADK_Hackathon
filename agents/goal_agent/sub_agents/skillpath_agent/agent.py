@@ -83,7 +83,7 @@ def store_skillpath(goal_id: str, skillpath: dict, tool_context: ToolContext) ->
         goals[goal_id] = {}
     goals[goal_id]["skillpath"] = skillpath
     tool_context.state["goals"] = goals
-    user_id = tool_context.state.get("user_id", "test")
+    user_id = tool_context._invocation_context.user_id
     db = SessionLocal()
     try:
         save_skillpath(db=db, user_id=user_id, goal_id=goal_id, skillpath_data=skillpath)

@@ -44,7 +44,7 @@ def store_roadmap(goal_id: str, roadmap: dict, tool_context: ToolContext) -> dic
         goals[goal_id] = {}
     goals[goal_id]["roadmap"] = roadmap
     tool_context.state["goals"] = goals
-    user_id = tool_context.state.get("user_id", "test")
+    user_id = tool_context._invocation_context.user_id
     db = SessionLocal()
     try:
         save_roadmap(db, user_id=user_id, goal_id=goal_id, roadmap_data=roadmap)
@@ -84,7 +84,7 @@ roadmap_agent = LlmAgent(
     - description
     - list of tasks (each task should be one actionable step)
     Tailor the roadmap to match the user's experience level and timeframe. The JSON should be clean and structured.
-    After generate the roadmap store the roadmap in JSON using the store_roadmap tool.
+    After generate the roadmap store the roadmap in JSON using the `store_roadmap` tool.
 
     
     

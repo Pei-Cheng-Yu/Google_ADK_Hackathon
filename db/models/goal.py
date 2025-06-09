@@ -7,5 +7,5 @@ class Goal(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(String, index=True)
-    goal_id = Column(String, index=True, unique=True)
+    goal_id = Column(String, index=True)
     structured_goals = Column(JSON) 
