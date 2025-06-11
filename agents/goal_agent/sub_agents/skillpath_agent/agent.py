@@ -43,6 +43,7 @@ def store_skillpath(goal_id: str, skillpath: dict, tool_context: ToolContext) ->
         {
         "skill_goal": "<copied from structured_goal.goal>",
         "timeframe": "<copied from structured_goal.timeframe>",
+        "start_date": "<copied from structured_goal.start_date>",
         "learning_path": [
             {
             "title": "string",
@@ -62,6 +63,7 @@ def store_skillpath(goal_id: str, skillpath: dict, tool_context: ToolContext) ->
         {
         "skill_goal": "<copied from structured_goal.goal>",
         "timeframe": "<copied from structured_goal.timeframe>",
+        "start_date": "<copied from structured_goal.start_date>",
         "learning_path": [
             {
             "title": "string",
@@ -133,6 +135,7 @@ skillpath_agent = LlmAgent(
     {
     "skill_goal": "<copied from structured_goal.goal>",
     "timeframe": "<copied from structured_goal.timeframe>",
+    "start_date": "<copied from structured_goal.start_date>",
     "learning_path": [
         {
         "title": "string",
