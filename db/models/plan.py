@@ -10,9 +10,13 @@ class DailyPlanItem(Base):
     goal_id = Column(String, index=True)
     date = Column(Date, index=True)
     title = Column(String)
-    type = Column(String)  # e.g., "learning"
+    description = Column(String, nullable=True)
+    tags = Column(JSON, nullable=True)
+    resource = Column(JSON, nullable=True)
+    milestone = Column(String, nullable=True)
+    type = Column(String) 
     start_time = Column(Time)
     end_time = Column(Time)
     duration_min = Column(Integer)
-    day_of_the_week = Column(String)  # optional, useful for frontend
-    raw = Column(JSON, nullable=True)  # store original agent output if needed
+    day_of_the_week = Column(String) 
+    raw = Column(JSON, nullable=True)  

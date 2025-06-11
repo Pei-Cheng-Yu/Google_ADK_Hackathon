@@ -12,14 +12,14 @@ async def run_memory_agent(user_id: str, user_input: str) -> dict:
         user_id=user_id,
         initial_state={"user_name": user_id, "reminders": []},
     )
-
+    
     # Step 2: Setup runner
     runner = Runner(
         agent=agent.root_agent,
         app_name=APP_NAME,
         session_service=session_service,
     )
-
+   
     # Step 3: Call agent
     result = await call_agent_async(runner, user_id, session_id, user_input)
     return result

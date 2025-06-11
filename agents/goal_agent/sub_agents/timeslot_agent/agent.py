@@ -106,6 +106,7 @@ timeslot_agent = LlmAgent(
     }
     }
     
+    remember store the timeslot using `store_available_slots`
     ❗ You MUST NOT show the final JSON to the user in the conversation.
     ❗ DO NOT display or explain the structured goal.
     ❗ DO NOT wrap it in markdown, code blocks, or text formatting.

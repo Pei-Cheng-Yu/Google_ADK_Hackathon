@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 from db.models.skillpath import SkillPath
 
 def save_skillpath(db: Session, user_id: str, goal_id: str, skillpath_data: dict):
-    existing = db.query(SkillPath).filter_by(goal_id=goal_id).first()
+    existing = db.query(SkillPath).filter_by(user_id=user_id, goal_id=goal_id).first()
     if existing:
         existing.structured_skillpaths = skillpath_data
     else:
