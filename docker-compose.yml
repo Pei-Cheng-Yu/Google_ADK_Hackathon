@@ -1,0 +1,33 @@
+version: "3.9"
+
+services:
+  backend:
+    build: ./backend
+    working_dir: /app
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - adk_db
+      - app_db
+    volumes:
+      - ./backend:/app
+
+  adk_db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: adk_user
+      POSTGRES_PASSWORD: adk_pass
+      POSTGRES_DB: adk_db
+    ports:
+      - "5433:5432"  # optional for connecting via host
+
+  app_db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: app_user
+      POSTGRES_PASSWORD: app_pass
+      POSTGRES_DB: app_db
+    ports:
+      - "5434:5432"  # optional for connecting via host
