@@ -149,7 +149,7 @@ def get_daily_plan( tool_context: ToolContext) -> dict:
 S_agent = SequentialAgent(
     name="S_agent",
     sub_agents=[roadmap_agent,skillpath_agent],
-    description="A S_agent do the job",
+    description="A S_agent run the roadmap and skillpath agent",
 )
 
 root_agent = LlmAgent(

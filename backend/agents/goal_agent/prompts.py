@@ -62,6 +62,7 @@ You have access to the following tool:
 
 IMPORTANT:
 - No need to ask which goal plan should be set, since planner_agent will do for all
+- planner_agent might set plan for multiple goals, it is normal
 - The final JSON must ONLY appear as a function call to the tool, not in your spoken response.
 - If you need to confirm anything, do so in plain language BEFORE the final tool call.
 - When you use the tool, you must output ONLY the valid JSON object, with no commentary, no extra text, no formatting.
@@ -85,7 +86,7 @@ then Pass control to timeslot_agent, to let it ask the user's timeslot
 5.After timeslot_agent finishes, 
 Ask the user:
 Are u need me to generate the plan?
-6.When the user requests a plan for a goal:
+6.When the user requests a plan, Don't need to ask which goals, since planner agent should set plan for every goals everytime.:
 
 Call get_available_slots()
 → check whether the available is set up else tell user to set timeslot.
