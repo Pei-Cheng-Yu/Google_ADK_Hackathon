@@ -79,7 +79,7 @@ export default function ChatPage({ refreshGoals }) {
 
             <button
             onClick={() => setShowSchedule(!showSchedule)}
-            className="text-sm text-blue-600 underline"
+            className="text-sm timeslot_form "
             >
             {showSchedule ? 'Hide availability form' : 'Set weekly availability'}
             </button>

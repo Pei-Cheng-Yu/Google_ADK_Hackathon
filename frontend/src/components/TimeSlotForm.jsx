@@ -83,7 +83,7 @@ export default function TimeSlotForm({ onSubmit }) {
             </div>
           ))}
           <button
-            className="text-sm text-blue-600 underline"
+            className="text-sm timeslot_form"
             onClick={() => addTimeBlock(day)}
           >
             + Add time block
@@ -104,7 +104,7 @@ export default function TimeSlotForm({ onSubmit }) {
           </div>
         ))}
         <button
-          className="text-sm text-blue-600 underline"
+          className="text-sm timeslot_form"
           onClick={addException}
         >
           + Add exception
@@ -113,7 +113,7 @@ export default function TimeSlotForm({ onSubmit }) {
 
       <button
         onClick={handleSubmit}
-        className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+        className=" px-4 py-2 rounded timeslot_form"
       >
         📅 Submit Availability
       </button>

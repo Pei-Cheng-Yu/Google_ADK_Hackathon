@@ -32,10 +32,10 @@ h1 {
 
 
 .sideBarItem {
-  @apply block rounded  flex  hover:bg-white hover:text-gray-900
+  @apply block rounded  font-serif flex  hover:bg-white hover:text-gray-900
 }
 .chatBot{
-  @apply  block  flex text-lg h-15 place-items-center bg-purple-700 text-white rounded hover:bg-white hover:text-purple-700
+  @apply  block  font-serif flex text-lg h-15 place-items-center bg-purple-700 text-white rounded hover:bg-white hover:text-purple-700
 }
 .logout{
   @apply w-full bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600
@@ -46,6 +46,9 @@ h1 {
 .skillpath{
   @apply w-full text-left text-gray-900 px-4 py-2  font-semibold hover:bg-blue-900 hover:text-gray-200
 }
+.timeslot_form{
+  @apply p-1 hover:bg-blue-600  hover:text-white rounded border border-blue-600 bg-white text-blue-600 
+}
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
@@ -54,10 +57,10 @@ h1 {
   a:hover {
     color: #747bff;
   }
-  button:not(.logout,.milestone,.skillpath){
+  button:not(.logout,.milestone,.skillpath,.timeslot_form){
      @apply bg-purple-700 text-white;
   }
-  button:hover:not(.logout,.milestone,.skillpath) {
+  button:hover:not(.logout,.milestone,.skillpath,.timeslot_form) {
      @apply bg-white text-purple-700 border-purple-700 border;
   }
 }

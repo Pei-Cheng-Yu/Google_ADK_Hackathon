@@ -14,7 +14,7 @@ export default function Sidebar({ goals, refreshGoals, onLogout }) {
   return (
     <div className="w-64 h-screen bg-gray-900 text-white p-4 flex flex-col justify-between">
       <div>
-        <h1 className="text-2xl font-bold mb-6">ADK Planner</h1>
+        <h1 className="text-2xl font-bold mb-6 font-serif">ADK Planner</h1>
         <nav className="space-y-3">
           <Link to="/" className="sideBarItem">🏠 Home</Link>
           <Link to="/calendar" className="sideBarItem">📅 Calendar</Link>
