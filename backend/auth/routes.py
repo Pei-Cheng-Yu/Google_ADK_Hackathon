@@ -5,10 +5,21 @@ from db.models.user import User
 from .hash import verify_password, hash_password
 from .jwt import create_access_token
 from fastapi import Form
+from pydantic import BaseModel
 router = APIRouter()
 
+
+class SignupRequest(BaseModel):
+    username: str
+    password: str
+    
+    
 @router.post("/signup")
-def signup(username: str, password: str, db: Session = Depends(get_db)):
+def signup(
+    data: SignupRequest,
+    db: Session = Depends(get_db)):
+    username = data.username
+    password = data.password
     user = db.query(User).filter_by(username=username).first()
     if user:
         raise HTTPException(status_code=400, detail="Username already registered")
@@ -24,6 +35,7 @@ def login(
     password: str = Form(...),
     db: Session = Depends(get_db)
 ):
+    
     user = db.query(User).filter_by(username=username).first()
     if not user or not verify_password(password, user.password):
         raise HTTPException(status_code=401, detail="Invalid credentials")

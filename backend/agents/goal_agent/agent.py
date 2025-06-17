@@ -72,6 +72,21 @@ def store_structured_goal(goal_id: str, goal: dict, tool_context: ToolContext) -
     finally:
         db.close()
     return {"message": f"Structured goal '{goal_id}' stored."}
+def get_available_slots(tool_context: ToolContext) -> dict:
+    """_summary_
+
+    Args:
+        
+        tool_context (ToolContext): Context for accessing and updating session state
+
+    Returns:
+        dict: the available_slots
+    """
+    available_slots = tool_context.state.get("available_slots")
+    return {
+        "available_slots": available_slots
+    }
+    
 
 def get_current_date() -> dict:
     """
@@ -118,6 +133,19 @@ def get_skillpath(goal_id: str, tool_context: ToolContext) -> dict:
         "skillpath": skillpath
     }
     
+def get_daily_plan( tool_context: ToolContext) -> dict:
+    """_summary_
+
+        tool_context (ToolContext): Context for accessing and updating session state
+
+    Returns:
+        dict: the available_slots
+    """
+    daily_plan=tool_context.state.get(" daily_plan", {})
+    return {
+        
+       "daily_plan": daily_plan
+    }
 S_agent = SequentialAgent(
     name="S_agent",
     sub_agents=[roadmap_agent,skillpath_agent],
@@ -128,6 +156,6 @@ root_agent = LlmAgent(
     name ="goal_agent",
     model="gemini-2.0-flash",
     instruction=get_goal_agent_prompt(),
-    tools=[store_structured_goal, list_goal_ids, get_goal_by_id, get_current_date, get_available_slots, get_skillpath],
+    tools=[get_daily_plan,get_available_slots,store_structured_goal, list_goal_ids, get_goal_by_id, get_current_date, get_available_slots, get_skillpath],
     sub_agents=[S_agent, timeslot_agent, planner_agent],
 )

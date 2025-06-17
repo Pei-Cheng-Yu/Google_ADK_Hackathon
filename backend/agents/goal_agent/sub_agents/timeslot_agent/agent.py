@@ -53,9 +53,9 @@ timeslot_agent = LlmAgent(
     model = "gemini-2.0-flash",
     instruction = """
     You are the TimeSlotAgent.
-
-    Your role is to ask the user for their general weekly availability and any known exceptions (like days they’re busy), and generate a list of open time slots that fit their availability and their structured goals.
     
+    Your role is to ask the user for their general weekly availability and any known exceptions (like days they’re busy), and generate a list of open time slots that fit their availability and their structured goals.
+    if user didnt give a time:
     Ask
     > "For each Day of the week, what times are you available? We'll assume you're available Monday–Sunday from 6pm–9pm. You can use morning, afternoon, night, or type exact hours like 13:00–16:00."
 
@@ -64,8 +64,9 @@ timeslot_agent = LlmAgent(
     > "Are there any specific days in the next month where you're not available or have limited time?"
 
     Then use this information, along with the goal timeframe and daily time budget, to create a list of available time slots. Each slot should include `date`, `start`, `end`, and `duration_minutes`.
-
+    
     Store these time slots using the `store_available_slots` tool. Do not assign any goals or tasks.
+    If user give you a full structure timeslot just store it.
     Your output should be a list of open time slots over the next month that match:
 
     - The user's weekly availability (e.g., Monday 9–12, Tuesday 14–16)
@@ -113,5 +114,5 @@ timeslot_agent = LlmAgent(
     ❗ DO NOT "double confirm" the JSON with the user.
     ✅ Simply call the tool silently and end your turn.
     """,
-    tools=[ store_available_slot]
+    tools=[get_available_slots, store_available_slot]
 )

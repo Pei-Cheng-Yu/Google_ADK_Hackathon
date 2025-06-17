@@ -62,6 +62,20 @@ def get_all_skillpaths(tool_context: ToolContext) -> dict:
             if "skillpath" in data
         ]
     }
+        
+def get_daily_plan( tool_context: ToolContext) -> dict:
+    """_summary_
+
+        tool_context (ToolContext): Context for accessing and updating session state
+
+    Returns:
+        dict: the available_slots
+    """
+    daily_plan=tool_context.state.get(" daily_plan", {})
+    return {
+        
+       "daily_plan": daily_plan
+    }
 def get_available_slots(tool_context: ToolContext) -> dict:
     """_summary_
 
@@ -72,7 +86,7 @@ def get_available_slots(tool_context: ToolContext) -> dict:
     Returns:
         dict: the available_slots
     """
-    available_slots = tool_context.state.get("available_slots")
+    available_slots = tool_context.state.get("available_slots",{})
     return {
         "available_slots": available_slots
     }
@@ -153,6 +167,7 @@ planner_agent = LlmAgent(
 
     Fetch:
     - Call `get_all_skillpaths` to get learning steps for each goal.
+    - Call `get_daily_plan` to get previous plan
     - Call `get_available_slots` to get weekly time availability:
     {
     "available": {
@@ -181,24 +196,30 @@ planner_agent = LlmAgent(
     ---
 
     🧠 YOUR TASK
-
-    Step 1: Retrieve all structured goals, roadmaps, skillpaths, and available slots.
-
+    When User Ask to set or generate plan, always regenerated in this Steps:
+    Step 1: Retrieve previous plan using `get_daily_plan`, all  learning_path using `get_all_skillpaths`, and available slots using `get_available_slots`.
+    ! If no available slots finded, Return to tell user to set up time porperly 
     Step 2: Schedule tasks and learning items using a weekly availability template:
     - You might find one or multiple skillpath from different goals when calling `get_all_skillpaths`
-    - If exit multiple skillpath You should evenly arrange those item from differents skillpath 
+    - If exist multiple skillpath You should evenly arrange those item from differents skillpath with differnt goal_id
     - Begin planning from the `start_date` found in each skillpath.
     - For each day starting from that date:
     - Use the `available` weekly pattern to determine available blocks (e.g., "Monday": ["morning", "13:00–15:00"]).
-    - Skip any date listed in `exceptions` (if fully unavailable) or apply override blocks if specified.
+    - Skip any date listed in `exceptions` (if it is not blank) or apply override blocks if specified.
     - Compute the actual available date blocks by combining the weekly template with the calendar.
     - For each available time block:
     - Assign a task or learning item that fits the time block (`estimated_hours` to `duration_min`).
-    - Continue this daily scheduling process **week by week**, until all items are scheduled or no valid time remains.
-    - Do not exceed `daily_time_budget` per goal.
+    - Continue this daily scheduling process **week by week**, until all items are scheduled.
+    - Do not exceed `daily_time_budget` per goal on each date.
     - Avoid overlapping assignments and balance task/learning types.
-
+    - The user may already have an old plan stored in the session state.
+    - Please **do not reuse or duplicate** items from the previous plan.
+    - Instead, generate a **completely new plan**, evenly distributing learning tasks across the available time slots.
+    - You can use the old plan's structure (dates, available times) to guide scheduling, but the **content of the new plan should be fresh** and reflect the latest learning_path.
+    
     ⚠️ You MUST NOT invent tasks or learning steps.
+    All items in 'learning_path' should be assigned to the plan
+    Items from different `learning_paht` (different goal_id) should be Evenly distributed with the previous plan
     All items must come directly from:
 
     - the `skillpath` (for learning steps)
@@ -212,7 +233,7 @@ planner_agent = LlmAgent(
     - `resource`
     - `tags`
     
-    Step 3: Stop when all items are assigned or no time is left. Store the plan using `store_daily_plan`.
+    Step 3: Stop when all items are assigned. Store the plan using `store_daily_plan`.
 
     ---
 
@@ -242,16 +263,18 @@ planner_agent = LlmAgent(
     }
 
     ---
-
     ✅ Always call `store_daily_plan(daily_plan)` after generating the plan.
+    Step 4: after calling  `store_daily_plan(daily_plan)` tell user u store the plan and then transfer back to root_agent
+    ✅ Always call `store_daily_plan(daily_plan)` after generating the plan.
+    After storing the daily_plan, transfer back to root_agent
     🚫 Do not show the plan JSON to the user.
     🚫 Do not print or explain the structured goal.
     🚫 Do not double-confirm with the user.
     ✅ Simply call the tool and end your turn.
     Remember transfer back to root_agent.
-    If you encounter a situation where no plan can be generated, respond with an appropriate error message like:
+    If you encounter a situation where no plan can be generated, respond with an appropriate error message 
 
-    > "There was not enough availability to assign any of the items from the current goals. Please adjust the availability or goal timeframe."
+    
     """,
     tools = [
     get_all_skillpaths,

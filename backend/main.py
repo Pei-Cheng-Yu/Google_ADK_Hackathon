@@ -7,12 +7,12 @@ from db.database import init_db
 from fastapi.middleware.cors import CORSMiddleware
 
 
-load_dotenv()
+load_dotenv(override=True)
 os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
 
 
 allowed_origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
-
+print("Allowed origins:", allowed_origins)
 
 app = FastAPI()
 

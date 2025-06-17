@@ -4,6 +4,7 @@ from db.models.plan import DailyPlanItem
 from sqlalchemy.orm import Session
 
 def store_plan(db: Session ,user_id: str, daily_plan: list):
+    db.query(DailyPlanItem).filter_by(user_id=user_id).delete()
     for day in daily_plan:
         date = datetime.strptime(day["date"], "%Y-%m-%d").date()
         for item in day["items"]:

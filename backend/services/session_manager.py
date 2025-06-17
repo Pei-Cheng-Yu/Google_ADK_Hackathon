@@ -1,6 +1,8 @@
 from google.adk.sessions import DatabaseSessionService
 from typing import Optional
 import os
+from dotenv import load_dotenv
+load_dotenv()
 db_url = os.getenv("ADK_DB_URL")
 session_service = DatabaseSessionService(db_url=db_url)
 
