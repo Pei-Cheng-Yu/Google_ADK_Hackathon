@@ -1,0 +1,63 @@
+@import "tailwindcss";
+:root {
+  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+
+  color-scheme: light dark;
+  color: rgba(255, 255, 255, 0.87);
+  background-color: #242424;
+
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+
+
+body {
+  margin: 0;
+  display: flex;
+  place-items: center;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+h1 {
+  font-size: 3.2em;
+  line-height: 1.1;
+}
+
+
+
+.sideBarItem {
+  @apply block rounded  flex  hover:bg-white hover:text-gray-900
+}
+.chatBot{
+  @apply  block  flex text-lg h-15 place-items-center bg-purple-700 text-white rounded hover:bg-white hover:text-purple-700
+}
+.logout{
+  @apply w-full bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600
+}
+.milestone{
+  @apply w-full text-left text-gray-900 px-4 py-2  font-semibold hover:bg-blue-900 hover:text-gray-200
+}
+.skillpath{
+  @apply w-full text-left text-gray-900 px-4 py-2  font-semibold hover:bg-blue-900 hover:text-gray-200
+}
+@media (prefers-color-scheme: light) {
+  :root {
+    color: #213547;
+    background-color: #ffffff;
+  }
+  a:hover {
+    color: #747bff;
+  }
+  button:not(.logout,.milestone,.skillpath){
+     @apply bg-purple-700 text-white;
+  }
+  button:hover:not(.logout,.milestone,.skillpath) {
+     @apply bg-white text-purple-700 border-purple-700 border;
+  }
+}
