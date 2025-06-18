@@ -7,6 +7,7 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ChatPage from './pages/ChatPage'
 import GoalDetailPage from './pages/GoalDetailPage';
+import WelcomePage from './pages/WelcomePage';
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
@@ -43,7 +44,7 @@ function App() {
           <Sidebar goals={goals} refreshGoals={refreshGoals} onLogout={handleLogout} />
           <div className="flex-1">
             <Routes>
-              <Route path="/" element={<div className="p-6 text-xl">🏠 Welcome to ADK Planner</div>} />
+              <Route path="/" element={<WelcomePage />} />
               <Route path="/calendar" element={<CalendarPage />} />
               <Route path="/chat" element={<ChatPage refreshGoals={refreshGoals} />} />
               <Route path="/goals/:goalId" element={<GoalDetailPage />} />

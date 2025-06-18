@@ -14,10 +14,10 @@ pnpm-debug.log*
 node_modules/
 
 # Build output
-dist/
-build/
-out/
-.vite/
+*/dist/
+*/build/
+*/out/
+*/.vite/
 
 # Environment files
 .env
