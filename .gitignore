@@ -54,3 +54,6 @@ venv/
 
 #local db
 *.db
+
+
+deploy.sh

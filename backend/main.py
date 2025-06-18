@@ -30,3 +30,7 @@ app.include_router(api_router)
 
 
 init_db()
+if __name__ == "__main__":
+    # This will read the port Cloud Run gives you
+    port = int(os.environ.get("PORT", 8080))
+    uvicorn.run(app, host="0.0.0.0", port=port)

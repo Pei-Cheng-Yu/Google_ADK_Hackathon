@@ -22,3 +22,4 @@ greenlet
 typing_extensions
 annotated-types
 passlib[bcrypt]
+pg8000
