@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import api from '../api'; // use the configured instance
-
+import { Link , useNavigate} from 'react-router-dom';
 export default function LoginPage({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-
+  const navigate = useNavigate();
   const handleLogin = async () => {
     try {
        const formData = new URLSearchParams();
@@ -47,8 +47,8 @@ export default function LoginPage({ onLogin }) {
         Login
       </button>
       <p className="text-sm mt-4">
-        Don't have an account? <a href="/register" className="text-blue-500 underline">Register</a>
-        </p>
+    Don't have an account? <Link to="/login" className="text-blue-500 underline">Register</Link>
+  </p>
     </div>
     </div>
     

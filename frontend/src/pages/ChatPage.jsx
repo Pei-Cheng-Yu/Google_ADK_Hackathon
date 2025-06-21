@@ -8,6 +8,7 @@ export default function ChatPage({ refreshGoals }) {
     const [showSchedule, setShowSchedule] = useState(false);
     const [canSetPlan, setCanSetPlan] = useState(false);
     const [loading, setLoading] = useState(false);
+    
     const sendMessage = async (content = input, shouldRefresh = false) => {
         if (!content.trim()) return;
         const userMessage = { role: 'user', content };
