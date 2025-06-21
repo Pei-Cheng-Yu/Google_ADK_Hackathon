@@ -1,5 +1,5 @@
 from google.adk.sessions import DatabaseSessionService
-from sqlalchemy.engine.url import URL
+from sqlalchemy.engine import URL
 from sqlalchemy import create_engine
 from dotenv import load_dotenv
 import os
@@ -7,7 +7,7 @@ import time
 import socket
 
 load_dotenv()
-
+load_dotenv(override=False)
 INSTANCE_CONNECTION_NAME = os.getenv("INSTANCE_CONNECTION_NAME")
 ADK_DB_NAME = os.getenv("ADK_DB_NAME")
 DB_USER = os.getenv("DB_USER")
@@ -35,12 +35,11 @@ def wait_for_db_socket(socket_path: str, timeout: int = 30):
 
 wait_for_db_socket(f"/cloudsql/{INSTANCE_CONNECTION_NAME}/.s.PGSQL.5432")
 
-# Init ADK session service
-session_service = DatabaseSessionService(db_url=str(db_url))
+session_service = DatabaseSessionService(db_url=db_url)
 
-def get_or_create_session(app_name: str, user_id: str, initial_state: dict) -> str:
-    existing_sessions = session_service.list_sessions(app_name=app_name, user_id=user_id)
+async def get_or_create_session(app_name: str, user_id: str, initial_state: dict) -> str:
+    existing_sessions = await session_service.list_sessions(app_name=app_name, user_id=user_id)
     if existing_sessions.sessions:
         return existing_sessions.sessions[0].id
-    new_session = session_service.create_session(app_name=app_name, user_id=user_id, state=initial_state)
+    new_session =  await  session_service.create_session(app_name=app_name, user_id=user_id, state=initial_state)
     return new_session.id

@@ -66,17 +66,24 @@ roadmap_agent = LlmAgent(
     You must first receive or be told a `goal_id` string (e.g. "todo_app", "c_learning"). You will use this goal_id to retrieve the correct goal and store your output.
     You should use get_structured_goal to get the goal the turn it into a concrete development roadmap Then use store_roadmap to stor the roadmap.
     Given the goal details:
+    
     {
-    "goal": "string",
-    "category": "string",
-    "timeframe": "string",
-    "intent": "Project" | "Learning" | "Habit",
-    "experience_level": "Beginner" | "Intermediate" | "Advanced",
-    "platform": "Web" | "Mobile" | "Offline" | "Hybrid",
-    "tech_stack": [string],
-    "features": [string],
-    "context": [string],
-    "daily_time_budget": "string"
+    "structured_roadmaps": {
+        "milestones": [
+        {
+        "goal": "string",
+        "category": "string",
+        "timeframe": "string",
+        "intent": "Project" | "Learning" | "Habit",
+        "experience_level": "Beginner" | "Intermediate" | "Advanced",
+        "platform": "Web" | "Mobile" | "Offline" | "Hybrid",
+        "tech_stack": [string],
+        "features": [string],
+        "context": [string],
+        "daily_time_budget": "string"
+        },....
+        ]
+    }
     }
     Dont worry about "daily_time_budget" in the JSON goal, it for other agent to access.
     Generate a roadmap in JSON with 3 to 10 milestones according to the goal's timeframe. Each milestone should include:

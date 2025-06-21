@@ -5,15 +5,16 @@ from dotenv import load_dotenv
 import os
 from db.database import init_db
 from fastapi.middleware.cors import CORSMiddleware
+import uvicorn
 
-
-load_dotenv(override=True)
+load_dotenv(override=False)
 os.environ["GOOGLE_API_KEY"] = os.getenv("GOOGLE_API_KEY")
 
 
 allowed_origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
 print("Allowed origins:", allowed_origins)
-
+print("Cloud Run ENV DB_USER:", os.getenv("DB_USER"))
+print("Cloud Run ENV DB_PASS:", os.getenv("DB_PASS"))
 app = FastAPI()
 
 
@@ -30,7 +31,3 @@ app.include_router(api_router)
 
 
 init_db()
-if __name__ == "__main__":
-    # This will read the port Cloud Run gives you
-    port = int(os.environ.get("PORT", 8080))
-    uvicorn.run(app, host="0.0.0.0", port=port)

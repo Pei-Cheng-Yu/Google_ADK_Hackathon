@@ -149,6 +149,7 @@ skillpath_agent = LlmAgent(
     }
      Be concise, and practical.
     
+    You need to store it by calling  `store_skillpath(goal_id, skillpath)`
     ### RESOURCE RETRIEVAL
 
     For each learning unit, try to suggest **1–2 relevant learning resources** in the `resource` field.
