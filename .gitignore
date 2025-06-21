@@ -58,4 +58,4 @@ venv/
 
 deploy.sh
 #
-*/*.yaml
+*/env.yaml
