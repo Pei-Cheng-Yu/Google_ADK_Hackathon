@@ -7,7 +7,7 @@ APP_NAME = "Memory Agent"
 from google.adk.tools import ToolContext
 async def run_memory_agent(user_id: str, user_input: str) -> dict:
     # Step 1: Get or create session
-    session_id = get_or_create_session(
+    session_id = await get_or_create_session(
         app_name=APP_NAME,
         user_id=user_id,
         initial_state={"user_name": user_id, "reminders": []},

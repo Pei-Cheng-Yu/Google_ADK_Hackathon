@@ -38,7 +38,7 @@ function App() {
   };
 
   return (
-    <Router key={isAuthenticated ? 'auth' : 'guest'}>
+    <Router basename="/Google_ADK_Hackathon" key={isAuthenticated ? 'auth' : 'guest'}>
       {isAuthenticated ? (
         <div className="flex h-screen w-screen">
           <Sidebar goals={goals} refreshGoals={refreshGoals} onLogout={handleLogout} />
@@ -59,7 +59,7 @@ function App() {
           <Route path="/login" element={<LoginPage onLogin={handleLogin} />} />
           <Route path="/register" element={<RegisterPage />} />
           {/* Redirect all other routes to login */}
-          <Route path="*" element={<Navigate to="/login" />} />
+          <Route path="*" element={<Navigate to="/register" />} />
         </Routes>
       )}
     </Router>

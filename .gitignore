@@ -22,7 +22,7 @@ node_modules/
 # Environment files
 .env
 .env.*.local
-**/.env
+*/.env
 # Editor/IDE
 .vscode/
 .idea/
@@ -54,3 +54,8 @@ venv/
 
 #local db
 *.db
+
+
+deploy.sh
+#
+*/env.yaml

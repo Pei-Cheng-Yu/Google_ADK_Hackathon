@@ -1,43 +1,45 @@
 from google.adk.sessions import DatabaseSessionService
-from typing import Optional
-import time
-import psycopg2
-from urllib.parse import urlparse
-import os
+from sqlalchemy.engine import URL
+from sqlalchemy import create_engine
 from dotenv import load_dotenv
+import os
+import time
+import socket
+
 load_dotenv()
-db_url = os.getenv("ADK_DB_URL")
+load_dotenv(override=False)
+INSTANCE_CONNECTION_NAME = os.getenv("INSTANCE_CONNECTION_NAME")
+ADK_DB_NAME = os.getenv("ADK_DB_NAME")
+DB_USER = os.getenv("DB_USER")
+DB_PASS = os.getenv("DB_PASS")
 
-def wait_for_db(url: str, timeout: int = 30):
-    parsed = urlparse(url)
-    user = parsed.username
-    password = parsed.password
-    host = parsed.hostname
-    port = parsed.port
-    dbname = parsed.path.lstrip('/')
+# Construct SQLAlchemy URL with Unix socket
+db_url = URL.create(
+    drivername="postgresql+pg8000",
+    username=DB_USER,
+    password=DB_PASS,
+    database=ADK_DB_NAME,
+    query={"unix_sock": f"/cloudsql/{INSTANCE_CONNECTION_NAME}/.s.PGSQL.5432"}
+)
 
+# Wait for socket to appear
+def wait_for_db_socket(socket_path: str, timeout: int = 30):
+    print(f"⏳ Waiting for DB socket: {socket_path}")
     start = time.time()
     while time.time() - start < timeout:
-        try:
-            conn = psycopg2.connect(
-                dbname=dbname, user=user, password=password,
-                host=host, port=port
-            )
-            conn.close()
-            print("✅ ADK DB is ready.")
+        if os.path.exists(socket_path):
+            print("✅ Unix socket ready.")
             return
-        except psycopg2.OperationalError:
-            print("⏳ Waiting for ADK DB to be ready...")
-            time.sleep(1)
-    raise Exception("❌ Timed out waiting for ADK DB.")
+        time.sleep(1)
+    raise Exception("❌ Timed out waiting for ADK DB socket.")
 
-# Call this before initializing the service
-wait_for_db(db_url)
+wait_for_db_socket(f"/cloudsql/{INSTANCE_CONNECTION_NAME}/.s.PGSQL.5432")
 
 session_service = DatabaseSessionService(db_url=db_url)
-def get_or_create_session(app_name: str, user_id: str, initial_state: dict) -> str:
-    existing_sessions = session_service.list_sessions(app_name=app_name, user_id=user_id)
+
+async def get_or_create_session(app_name: str, user_id: str, initial_state: dict) -> str:
+    existing_sessions = await session_service.list_sessions(app_name=app_name, user_id=user_id)
     if existing_sessions.sessions:
-        return existing_sessions.sessions[0].id  # reuse latest
-    new_session = session_service.create_session(app_name=app_name, user_id=user_id, state=initial_state)
+        return existing_sessions.sessions[0].id
+    new_session =  await  session_service.create_session(app_name=app_name, user_id=user_id, state=initial_state)
     return new_session.id

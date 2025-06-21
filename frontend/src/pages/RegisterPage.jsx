@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import api from '../api';
 import { useNavigate } from 'react-router-dom';
-
+import { Link } from 'react-router-dom';
 export default function RegisterPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -25,7 +25,7 @@ export default function RegisterPage() {
       <input className="border p-2 w-full mb-4" placeholder="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} />
       <button className="bg-green-500 text-black px-4 py-2 rounded" onClick={handleRegister}>Register</button>
       <p className="text-sm mt-4">
-        Already have an account? <a href="/login" className="text-blue-500 underline">Login</a>
+        Already have an account?  <Link to="/login" className="text-blue-500 underline">Login</Link>
         </p>
     </div>
     </div>
