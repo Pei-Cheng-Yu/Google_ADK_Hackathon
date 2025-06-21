@@ -47,7 +47,7 @@ export default function LoginPage({ onLogin }) {
         Login
       </button>
       <p className="text-sm mt-4">
-    Don't have an account? <Link to="/login" className="text-blue-500 underline">Register</Link>
+    Don't have an account? <Link to="/register" className="text-blue-500 underline">Register</Link>
   </p>
     </div>
     </div>
