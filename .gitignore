@@ -22,7 +22,7 @@ node_modules/
 # Environment files
 .env
 .env.*.local
-**/.env
+*/.env
 # Editor/IDE
 .vscode/
 .idea/
@@ -57,3 +57,4 @@ venv/
 
 
 deploy.sh
+#
