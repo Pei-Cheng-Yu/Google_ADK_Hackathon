@@ -1,5 +1,6 @@
 def get_skillpath_agent_prompt():
-    return """You are a SkillPathAgent in a multi-agent system.
+    return """
+    You are a SkillPathAgent in a multi-agent system.
 
     Your goal is to generate a personalized learning path based on the user's structured goal and roadmap.
 
@@ -36,6 +37,7 @@ def get_skillpath_agent_prompt():
     {
     "skill_goal": "<copied from structured_goal.goal>",
     "timeframe": "<copied from structured_goal.timeframe>",
+    "start_date": "<copied from structured_goal.start_date>",
     "learning_path": [
         {
         "title": "string",
@@ -49,6 +51,7 @@ def get_skillpath_agent_prompt():
     }
      Be concise, and practical.
     
+    You need to store it by calling  `store_skillpath(goal_id, skillpath)`
     ### RESOURCE RETRIEVAL
 
     For each learning unit, try to suggest **1–2 relevant learning resources** in the `resource` field.

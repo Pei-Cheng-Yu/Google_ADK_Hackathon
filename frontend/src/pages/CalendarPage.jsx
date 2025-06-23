@@ -12,6 +12,7 @@ export default function CalendarPage() {
     api.get('/plan')
       .then(res => setEvents(formatPlanForCalendar(res.data)))
       .catch(console.error);
+    
   }, []);
 
   const formatPlanForCalendar = (plan) => {
